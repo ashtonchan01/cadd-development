@@ -35,13 +35,16 @@ export function AddressAutocomplete({
       return;
     }
 
+    // Nominatim's usage policy caps public requests at ~1/sec — below ~150ms
+    // debounce, fast typing starts overlapping requests and risks getting
+    // rate-limited (silently no suggestions), so this is the practical floor.
     debounceRef.current = setTimeout(async () => {
       const controller = new AbortController();
       abortRef.current = controller;
       const results = await searchAddresses(v, controller.signal);
       setSuggestions(results);
       setOpen(results.length > 0);
-    }, 300);
+    }, 150);
   }
 
   return (

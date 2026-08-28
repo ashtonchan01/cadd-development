@@ -29,11 +29,23 @@ interface NominatimResult {
   };
 }
 
+// Splits "11 Annanvale Circuit" into house number "11" and street "Annanvale Circuit",
+// so we can query Nominatim's structured `street` field — free-text queries often
+// resolve to street level only and drop the house number from the result entirely.
+function splitHouseNumber(query: string): { houseNumber: string; street: string } {
+  const match = query.trim().match(/^(\d+[a-zA-Z]?(?:[/-]\d+)?)\s+(.*)$/);
+  return match ? { houseNumber: match[1], street: match[2] } : { houseNumber: '', street: query.trim() };
+}
+
 export async function searchAddresses(query: string, signal?: AbortSignal): Promise<AddressCandidate[]> {
   if (query.trim().length < 4) return [];
 
+  const { houseNumber, street } = splitHouseNumber(query);
+
   const params = new URLSearchParams({
-    q: `${query}, NSW, Australia`,
+    street: houseNumber ? `${houseNumber} ${street}` : street,
+    state: 'New South Wales',
+    country: 'Australia',
     format: 'jsonv2',
     addressdetails: '1',
     countrycodes: 'au',
@@ -49,11 +61,12 @@ export async function searchAddresses(query: string, signal?: AbortSignal): Prom
       .filter((r) => r.address?.state === 'New South Wales' || r.address?.postcode?.match(/^2\d{3}$/))
       .map((r) => {
         const a = r.address ?? {};
-        return {
-          fullAddress: r.display_name,
-          suburb: a.suburb ?? a.town ?? a.city ?? '',
-          postcode: a.postcode ?? '',
-        };
+        const houseNo = a.house_number || houseNumber;
+        const road = a.road || street;
+        const suburb = a.suburb ?? a.town ?? a.city ?? '';
+        const parts = [houseNo, road].filter(Boolean).join(' ');
+        const fullAddress = [parts, suburb, 'NSW', a.postcode].filter(Boolean).join(', ');
+        return { fullAddress, suburb, postcode: a.postcode ?? '' };
       });
   } catch {
     // Network error, aborted request, or the service is unreachable — fail quietly.
