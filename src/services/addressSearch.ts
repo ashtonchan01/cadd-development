@@ -2,6 +2,8 @@ export interface AddressCandidate {
   fullAddress: string;
   suburb: string;
   postcode: string;
+  lat?: number;
+  lon?: number;
 }
 
 /**
@@ -18,6 +20,8 @@ const SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
 
 interface NominatimResult {
   display_name: string;
+  lat?: string;
+  lon?: string;
   address?: {
     house_number?: string;
     road?: string;
@@ -66,7 +70,9 @@ export async function searchAddresses(query: string, signal?: AbortSignal): Prom
         const suburb = a.suburb ?? a.town ?? a.city ?? '';
         const parts = [houseNo, road].filter(Boolean).join(' ');
         const fullAddress = [parts, suburb, 'NSW', a.postcode].filter(Boolean).join(', ');
-        return { fullAddress, suburb, postcode: a.postcode ?? '' };
+        const lat = r.lat ? Number(r.lat) : undefined;
+        const lon = r.lon ? Number(r.lon) : undefined;
+        return { fullAddress, suburb, postcode: a.postcode ?? '', lat, lon };
       });
   } catch {
     // Network error, aborted request, or the service is unreachable — fail quietly.

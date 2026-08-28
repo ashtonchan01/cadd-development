@@ -68,6 +68,8 @@ input, select, textarea {
 
 textarea { min-height: 50px; resize: vertical; }
 
+.hint-ok { color: var(--accent); }
+
 .autocomplete { position: relative; width: 100%; }
 .autocomplete input { width: 100%; }
 .autocomplete-list {

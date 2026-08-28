@@ -3,6 +3,7 @@ import type { NewProperty, ZoneCode } from '../types';
 import { ZONE_OPTIONS, ZONE_PROFILES } from '../data/nswZoning';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import type { AddressCandidate } from '../services/addressSearch';
+import { lookupPlanningControls } from '../services/planningLookup';
 
 const empty: NewProperty = {
   address: '', suburb: '', lga: '', zone: 'R2', lotSizeSqm: 600, frontageM: undefined,
@@ -12,9 +13,27 @@ const empty: NewProperty = {
 
 export function PropertyForm({ onAdd }: { onAdd: (p: NewProperty) => void }) {
   const [form, setForm] = useState<NewProperty>(empty);
+  const [planningStatus, setPlanningStatus] = useState<'idle' | 'loading' | 'found' | 'none'>('idle');
 
   function set<K extends keyof NewProperty>(key: K, value: NewProperty[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleAddressSelect(c: AddressCandidate) {
+    set('address', c.fullAddress);
+    if (c.suburb) set('suburb', c.suburb);
+
+    if (c.lat === undefined || c.lon === undefined) return;
+    setPlanningStatus('loading');
+    const controls = await lookupPlanningControls(c.lat, c.lon);
+    if (!controls.zone && !controls.lga && !controls.councilMinLotSqm) {
+      setPlanningStatus('none');
+      return;
+    }
+    if (controls.zone) set('zone', controls.zone);
+    if (controls.lga) set('lga', controls.lga);
+    if (controls.councilMinLotSqm) set('councilMinLotSqm', controls.councilMinLotSqm);
+    setPlanningStatus('found');
   }
 
   function submit(e: React.FormEvent) {
@@ -31,12 +50,12 @@ export function PropertyForm({ onAdd }: { onAdd: (p: NewProperty) => void }) {
         <label>Address
           <AddressAutocomplete
             value={form.address}
-            onChange={(v) => set('address', v)}
-            onSelect={(c: AddressCandidate) => {
-              set('address', c.fullAddress);
-              if (c.suburb) set('suburb', c.suburb);
-            }}
+            onChange={(v) => { set('address', v); setPlanningStatus('idle'); }}
+            onSelect={handleAddressSelect}
           />
+          {planningStatus === 'loading' && <span className="hint">Looking up zoning…</span>}
+          {planningStatus === 'found' && <span className="hint hint-ok">Zone, council &amp; min lot size auto-filled from NSW Planning Portal — verify before relying on it.</span>}
+          {planningStatus === 'none' && <span className="hint">No planning data found for this point — enter zoning manually.</span>}
         </label>
         <label>Suburb<input value={form.suburb} onChange={(e) => set('suburb', e.target.value)} /></label>
         <label>Council (LGA)<input value={form.lga} onChange={(e) => set('lga', e.target.value)} /></label>

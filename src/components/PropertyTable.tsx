@@ -13,7 +13,7 @@ export function PropertyTable({ properties, onRemove }: { properties: Property[]
   );
 
   if (properties.length === 0) {
-    return <div className="card"><p className="hint">No properties yet — add one above or import a CSV.</p></div>;
+    return <div className="card"><p className="hint">No properties yet — add one above.</p></div>;
   }
 
   return (
@@ -50,6 +50,18 @@ export function PropertyTable({ properties, onRemove }: { properties: Property[]
                       ))}
                     </ul>
                     {p.notes && <p className="notes-view"><em>Notes:</em> {p.notes}</p>}
+                    <p className="notes-view">
+                      <em>Comparable sales:</em>{' '}
+                      <a
+                        href="https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/find-property-sales-information"
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        NSW Valuer General sale price search
+                      </a>
+                      {p.suburb && ` — search for "${p.suburb}"`} (free, but registered bulk-file/manual search, not a live per-address API).
+                    </p>
                   </td>
                 </tr>
               )}
