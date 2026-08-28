@@ -5,47 +5,56 @@ export interface AddressCandidate {
 }
 
 /**
- * NSW Government's SIX Maps geocoder — a free, public, no-API-key ArcGIS locator
- * service run by NSW Spatial Services. It's used for predictive address search
- * across all of NSW (not just a hand-picked list), which is why this hits the
- * network on every keystroke rather than shipping a bundled address database —
- * there's no practical way to ship "all NSW addresses" client-side.
+ * Nominatim (OpenStreetMap) public search API — free, no API key, CORS-enabled
+ * for client-side use, results filtered to Australia and re-filtered client-side
+ * to NSW postcodes (2000-2999, 1000-1999 non-standard business codes excluded).
  *
- * This endpoint wasn't reachable to test from the build sandbox (no outbound
- * network there), so it's only verified to work from a real browser session.
- * If NSW ever change or retire it, every call below fails silently and the
- * address field just behaves like a normal text input — it never blocks typing
- * or submitting the form.
+ * Coverage/formatting is community-sourced OSM data, so it's not as authoritative
+ * as a government address register — this is address-entry convenience, not a
+ * source of truth for zoning or lot boundaries. Every call below fails silently
+ * on error, so the address field always still works as a plain text input.
  */
-const GEOCODER_URL =
-  'https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/LPI_GeocodedAddress/GeocodeServer/findAddressCandidates';
+const SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
+
+interface NominatimResult {
+  display_name: string;
+  address?: {
+    house_number?: string;
+    road?: string;
+    suburb?: string;
+    town?: string;
+    city?: string;
+    postcode?: string;
+    state?: string;
+  };
+}
 
 export async function searchAddresses(query: string, signal?: AbortSignal): Promise<AddressCandidate[]> {
   if (query.trim().length < 4) return [];
 
   const params = new URLSearchParams({
-    SingleLine: query,
-    f: 'json',
-    maxLocations: '6',
-    outFields: 'HouseNumber,StreetName,StreetType,Suburb,Postcode',
+    q: `${query}, NSW, Australia`,
+    format: 'jsonv2',
+    addressdetails: '1',
+    countrycodes: 'au',
+    limit: '6',
   });
 
   try {
-    const res = await fetch(`${GEOCODER_URL}?${params.toString()}`, { signal });
+    const res = await fetch(`${SEARCH_URL}?${params.toString()}`, { signal });
     if (!res.ok) return [];
-    const data = await res.json();
-    const candidates = Array.isArray(data?.candidates) ? data.candidates : [];
+    const data: NominatimResult[] = await res.json();
 
-    return candidates
-      .map((c: { address?: string; attributes?: Record<string, string> }) => {
-        const attrs = c.attributes ?? {};
+    return data
+      .filter((r) => r.address?.state === 'New South Wales' || r.address?.postcode?.match(/^2\d{3}$/))
+      .map((r) => {
+        const a = r.address ?? {};
         return {
-          fullAddress: c.address ?? '',
-          suburb: attrs.Suburb ?? '',
-          postcode: attrs.Postcode ?? '',
+          fullAddress: r.display_name,
+          suburb: a.suburb ?? a.town ?? a.city ?? '',
+          postcode: a.postcode ?? '',
         };
-      })
-      .filter((c: AddressCandidate) => c.fullAddress);
+      });
   } catch {
     // Network error, aborted request, or the service is unreachable — fail quietly.
     return [];
