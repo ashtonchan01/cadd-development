@@ -1,5 +1,7 @@
 # CADD — NSW Multi-Dwelling Development Finder
 
+Live app: https://cadddevelopment.vercel.app (auto-deploys from `main` on push)
+
 Scores residential properties in NSW for dual occupancy, multi-dwelling housing
 (townhouses) and Torrens subdivision potential, based on:
 
