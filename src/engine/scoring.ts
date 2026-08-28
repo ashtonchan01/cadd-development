@@ -1,12 +1,15 @@
 import { ZONE_PROFILES } from '../data/nswZoning';
-import type { DevelopmentOption, Property, ScoreResult } from '../types';
+import type { DevelopmentOption, NewProperty, ScoreResult } from '../types';
 
 /**
  * Scores a property's residential development potential.
  * This is a planning-rules HEURISTIC, not a substitute for a planning certificate,
  * pre-DA advice, or a council LEP check — see notes in each ZoneProfile.
+ *
+ * Takes the NewProperty shape (no id/createdAt) so it can score a draft in the
+ * report view before it's ever saved, as well as a saved Property.
  */
-export function scoreProperty(p: Property): ScoreResult {
+export function scoreProperty(p: NewProperty): ScoreResult {
   const profile = ZONE_PROFILES[p.zone];
   const options: DevelopmentOption[] = [];
 

@@ -2,21 +2,23 @@
 
 Live app: https://cadddevelopment.vercel.app (auto-deploys from `main` on push)
 
-Scores residential properties in NSW for dual occupancy, multi-dwelling housing
-(townhouses) and Torrens subdivision potential, based on:
+A single-search property intelligence tool, modelled on National Property Data's
+"search an address → get a report" UX. Scores residential properties in NSW for
+dual occupancy, multi-dwelling housing (townhouses) and Torrens subdivision
+potential, based on:
 
 - NSW Standard Instrument LEP zone defaults (`src/data/nswZoning.ts`)
 - The statewide Low and Mid-Rise Housing SEPP (2023) walking-catchment uplift
 - Per-property overrides for the council's actual LEP minimum lot size, since that
   is set per Local Government Area and isn't uniform across the state
 
-## Data sources
+## How this compares to National Property Data / CoreLogic-Cotality
 
-There's no self-serve, affordable API for realestate.com.au / domain.com.au listing
-data or CoreLogic/RP Data's sale-price + AVM data — those are enterprise-only,
-sales-contact-required licenses (this is reportedly what killed National Property
-Data — enterprise CoreLogic-tier costs without enterprise-scale revenue). So
-properties are added one at a time via the form, using free public data instead:
+National Property Data's single-search product is built on Valuer General sale
+data back to 1986, property portal listing feeds, and government/CRM ownership
+records — all under commercial data licenses. Those aren't self-serve for an
+individual, so this app matches their UX shape (search → report) but runs
+entirely on free public data instead:
 
 - **Address autocomplete** — Nominatim (OpenStreetMap), `src/services/addressSearch.ts`.
   No API key. Fails open to a plain text field if unreachable.
@@ -51,6 +53,10 @@ verify before acting on a result.
 - Verify the exact layer/field names in `planningLookup.ts` against real NSW
   Planning Portal responses (built from public docs, not tested live from this
   sandbox — same caveat the address geocoder had before it was fixed).
-- If a Domain Developer API key becomes available (self-serve, free tier at
-  developer.domain.com.au), use it for listing price/status lookups.
+- **Phase 2 — real listing/sale data**: Domain's Developer API (self-serve, free
+  tier) and Cotality's (formerly CoreLogic) new self-serve sandbox
+  (developer.corelogic.asia) both use a client secret that can't safely live in
+  browser code, so wiring either in needs a small serverless function (a
+  `api/` route on Vercel) to hold the secret server-side and proxy requests —
+  not yet built. Once a key is available, this is the next real upgrade.
 - Track listing price alongside estimated yield to surface $/potential-dwelling.

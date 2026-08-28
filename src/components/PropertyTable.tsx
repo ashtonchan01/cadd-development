@@ -13,7 +13,7 @@ export function PropertyTable({ properties, onRemove }: { properties: Property[]
   );
 
   if (properties.length === 0) {
-    return <div className="card"><p className="hint">No properties yet — add one above.</p></div>;
+    return <div className="card"><p className="hint">No properties yet — search for an address to add your first one.</p></div>;
   }
 
   return (
