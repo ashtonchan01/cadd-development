@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import type { NewProperty, Property } from './types';
 import { addProperty, loadProperties, removeProperty, saveProperties } from './store/propertyStore';
 import { PropertyForm } from './components/PropertyForm';
-import { CsvImport } from './components/CsvImport';
 import { PropertyTable } from './components/PropertyTable';
 import './App.css';
 
@@ -13,14 +12,6 @@ function App() {
 
   function handleAdd(p: NewProperty) {
     setProperties((cur) => addProperty(cur, p));
-  }
-
-  function handleImport(rows: NewProperty[]) {
-    setProperties((cur) => {
-      let next = cur;
-      for (const r of rows) next = addProperty(next, r);
-      return next;
-    });
   }
 
   function handleRemove(id: string) {
@@ -45,7 +36,6 @@ function App() {
 
       <main>
         <PropertyForm onAdd={handleAdd} />
-        <CsvImport onImport={handleImport} />
         <PropertyTable properties={properties} onRemove={handleRemove} />
         {properties.length > 0 && (
           <button type="button" className="clear-all" onClick={clearAll}>Clear all properties</button>

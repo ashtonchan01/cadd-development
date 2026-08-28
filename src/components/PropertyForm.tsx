@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { NewProperty, ZoneCode } from '../types';
 import { ZONE_OPTIONS, ZONE_PROFILES } from '../data/nswZoning';
+import { AddressAutocomplete } from './AddressAutocomplete';
+import type { AddressCandidate } from '../services/addressSearch';
 
 const empty: NewProperty = {
   address: '', suburb: '', lga: '', zone: 'R2', lotSizeSqm: 600, frontageM: undefined,
@@ -26,7 +28,16 @@ export function PropertyForm({ onAdd }: { onAdd: (p: NewProperty) => void }) {
     <form className="card form" onSubmit={submit}>
       <h2>Add property</h2>
       <div className="grid">
-        <label>Address<input required value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="12 Example St" /></label>
+        <label>Address
+          <AddressAutocomplete
+            value={form.address}
+            onChange={(v) => set('address', v)}
+            onSelect={(c: AddressCandidate) => {
+              set('address', c.fullAddress);
+              if (c.suburb) set('suburb', c.suburb);
+            }}
+          />
+        </label>
         <label>Suburb<input value={form.suburb} onChange={(e) => set('suburb', e.target.value)} /></label>
         <label>Council (LGA)<input value={form.lga} onChange={(e) => set('lga', e.target.value)} /></label>
         <label>Zone

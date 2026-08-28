@@ -10,15 +10,16 @@ Scores residential properties in NSW for dual occupancy, multi-dwelling housing
 - Per-property overrides for the council's actual LEP minimum lot size, since that
   is set per Local Government Area and isn't uniform across the state
 
-## Why no live listing scraper
+## No live listing scraper
 
-This build environment has no working access to realestate.com.au, domain.com.au,
-or the NSW Planning Portal's spatial APIs, so instead of a scraper that can't be
-tested end-to-end, the app takes properties via:
-
-1. A manual add-property form, or
-2. Bulk CSV import (template downloadable in-app) — export shortlisted addresses
-   from listing sites or the NSW Planning Portal into the CSV and import them here.
+There's no self-serve, affordable API for realestate.com.au / domain.com.au listing
+data or CoreLogic/RP Data's sale-price + AVM data — those are enterprise-only,
+sales-contact-required licenses (this is reportedly what killed National Property
+Data — enterprise CoreLogic-tier costs without enterprise-scale revenue). So
+properties are added one at a time via the form, with the address field backed by
+live autocomplete against the free, public NSW Government SIX Maps geocoder
+(`src/services/addressSearch.ts`) — no API key needed, and it fails open to a plain
+text field if that service is ever unreachable.
 
 Everything is scored client-side and persisted to `localStorage` — no backend.
 
@@ -40,7 +41,8 @@ verify before acting on a result.
 ## Possible next steps
 
 - Wire up the NSW Planning Portal's public spatial layers (zoning / minimum lot
-  size) by address/lot-DP, if/when API access is available, to auto-fill zone and
-  council minimum lot size instead of manual entry.
-- Add a geocoding step so CSV rows only need an address.
+  size) by address/lot-DP to auto-fill zone and council minimum lot size instead
+  of manual entry, using the same address the autocomplete already resolves.
+- If a Domain Developer API key becomes available (self-serve, free tier at
+  developer.domain.com.au), use it for listing price/status lookups.
 - Track listing price alongside estimated yield to surface $/potential-dwelling.
