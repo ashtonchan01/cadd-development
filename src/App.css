@@ -1,13 +1,16 @@
 :root {
-  --bg: #0f1720;
-  --surface: #16202b;
-  --border: #2a3644;
-  --text: #e6edf3;
-  --muted: #93a4b8;
-  --accent: #22c55e;
-  --warn: #f59e0b;
-  --danger: #ef4444;
-  color-scheme: dark;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #e3e6eb;
+  --text: #1f2430;
+  --muted: #6b7280;
+  --accent: #2f6fed;
+  --positive: #15803d;
+  --positive-bg: #ecfdf3;
+  --warn: #b45309;
+  --warn-bg: #fef6e6;
+  --danger: #dc2626;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -43,8 +46,8 @@ body {
   font-size: 0.88rem;
   font-weight: 500;
 }
-.top-nav .nav-link:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-.top-nav .nav-active { background: rgba(34,197,94,0.14); color: var(--accent); }
+.top-nav .nav-link:hover { background: #f0f2f5; color: var(--text); }
+.top-nav .nav-active { background: #eaf1ff; color: var(--accent); }
 
 .search-home { text-align: center; padding: 60px 0 30px; }
 .search-home h1 { font-size: 2rem; margin-bottom: 10px; }
@@ -75,9 +78,10 @@ body {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 .card h2 { margin-top: 0; font-size: 1.05rem; }
@@ -101,7 +105,7 @@ label.checkbox { flex-direction: row; align-items: center; gap: 8px; font-size: 
 label.checkbox input { width: auto; }
 
 input, select, textarea {
-  background: #0f1720;
+  background: #fbfbfc;
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
@@ -109,10 +113,15 @@ input, select, textarea {
   font-size: 0.9rem;
   font-family: inherit;
 }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+}
 
 textarea { min-height: 50px; resize: vertical; }
 
-.hint-ok { color: var(--accent); }
+.hint-ok { color: var(--positive); }
 
 .autocomplete { position: relative; width: 100%; }
 .autocomplete input { width: 100%; }
@@ -130,6 +139,7 @@ textarea { min-height: 50px; resize: vertical; }
   border-radius: 8px;
   max-height: 220px;
   overflow-y: auto;
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08);
 }
 .autocomplete-list li {
   padding: 7px 9px;
@@ -138,13 +148,13 @@ textarea { min-height: 50px; resize: vertical; }
   font-size: 0.85rem;
   color: var(--text);
 }
-.autocomplete-list li:hover { background: rgba(34,197,94,0.12); }
+.autocomplete-list li:hover { background: #eaf1ff; }
 
 .hint { color: var(--muted); font-size: 0.82rem; }
 
 button {
   background: var(--accent);
-  color: #06210f;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 9px 16px;
@@ -162,7 +172,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px; border-bottom: 1px solid var(--border); }
 td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 tr.row { cursor: pointer; }
-tr.row:hover { background: rgba(255,255,255,0.03); }
+tr.row:hover { background: #f7f9fc; }
 .summary-cell { color: var(--muted); max-width: 320px; }
 
 .score-badge {
@@ -174,13 +184,13 @@ tr.row:hover { background: rgba(255,255,255,0.03); }
   border-radius: 6px;
   font-weight: 700;
 }
-.score-high .score-badge { background: rgba(34,197,94,0.18); color: var(--accent); }
-.score-mid .score-badge { background: rgba(245,158,11,0.18); color: var(--warn); }
-.score-low .score-badge { background: rgba(148,163,184,0.15); color: var(--muted); }
+.score-high .score-badge { background: var(--positive-bg); color: var(--positive); }
+.score-mid .score-badge { background: var(--warn-bg); color: var(--warn); }
+.score-low .score-badge { background: #f1f2f4; color: var(--muted); }
 
-.detail-row td { background: rgba(255,255,255,0.02); }
+.detail-row td { background: #fafbfc; }
 .options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.options li.eligible strong { color: var(--accent); }
+.options li.eligible strong { color: var(--positive); }
 .options li.ineligible strong { color: var(--muted); }
 .reason { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
 .notes-view { color: var(--muted); font-size: 0.85rem; }
