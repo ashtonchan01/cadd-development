@@ -1,15 +1,17 @@
 :root {
-  --bg: #f6f7f9;
+  --bg: #faf9f6;
   --surface: #ffffff;
-  --border: #e3e6eb;
-  --text: #1f2430;
-  --muted: #6b7280;
-  --accent: #2f6fed;
+  --border: #e7e2da;
+  --text: #1b2733;
+  --muted: #5a6b7a;
+  --accent: #00395f;
   --positive: #15803d;
   --positive-bg: #ecfdf3;
   --warn: #b45309;
   --warn-bg: #fef6e6;
   --danger: #dc2626;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-head: 'Crimson Pro', serif;
   color-scheme: light;
 }
 
@@ -19,8 +21,11 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2 { font-family: var(--font-head); font-weight: 500; }
 
 .app {
   max-width: 1100px;
@@ -46,8 +51,8 @@ body {
   font-size: 0.88rem;
   font-weight: 500;
 }
-.top-nav .nav-link:hover { background: #f0f2f5; color: var(--text); }
-.top-nav .nav-active { background: #eaf1ff; color: var(--accent); }
+.top-nav .nav-link:hover { background: #f1efe9; color: var(--text); }
+.top-nav .nav-active { background: #e6edf1; color: var(--accent); }
 
 .search-home { text-align: center; padding: 60px 0 30px; }
 .search-home h1 { font-size: 2rem; margin-bottom: 10px; }
@@ -116,7 +121,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 57, 95, 0.12);
 }
 
 textarea { min-height: 50px; resize: vertical; }
@@ -148,7 +153,7 @@ textarea { min-height: 50px; resize: vertical; }
   font-size: 0.85rem;
   color: var(--text);
 }
-.autocomplete-list li:hover { background: #eaf1ff; }
+.autocomplete-list li:hover { background: #e6edf1; }
 
 .hint { color: var(--muted); font-size: 0.82rem; }
 
