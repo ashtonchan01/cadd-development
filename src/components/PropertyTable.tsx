@@ -73,6 +73,18 @@ export function PropertyTable({
                       </a>
                       {p.suburb && ` — search for "${p.suburb}"`} (free, but registered bulk-file/manual search, not a live per-address API).
                     </p>
+                    <p className="notes-view">
+                      <em>Suburb price trends:</em>{' '}
+                      <a
+                        href="https://property.carto.au/sydney/house-prices/by-suburb/map"
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Sydney median house prices by suburb
+                      </a>
+                      {' '}(weekly-updated, Sydney metro only).
+                    </p>
                   </td>
                 </tr>
               )}
