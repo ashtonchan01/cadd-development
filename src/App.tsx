@@ -5,11 +5,12 @@ import { SearchHome } from './components/SearchHome';
 import { PropertyReport } from './components/PropertyReport';
 import { PropertyTable } from './components/PropertyTable';
 import { FeasibilityCalculator } from './components/FeasibilityCalculator';
+import { SuburbMapPage } from './components/SuburbMapPage';
 import type { AddressCandidate } from './services/addressSearch';
 import caddLogo from './assets/cadd-logo.svg';
 import './App.css';
 
-type View = 'search' | 'report' | 'saved' | 'feasibility';
+type View = 'search' | 'report' | 'saved' | 'feasibility' | 'map';
 
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -57,6 +58,9 @@ function App() {
           <button type="button" className={view === 'saved' || view === 'feasibility' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => setView('saved')}>
             Saved properties{properties.length > 0 ? ` (${properties.length})` : ''}
           </button>
+          <button type="button" className={view === 'map' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => setView('map')}>
+            Suburb map
+          </button>
         </div>
       </aside>
 
@@ -83,6 +87,8 @@ function App() {
               ? <FeasibilityCalculator property={property} onBack={() => setView('saved')} />
               : <p className="hint">Property not found.</p>;
           })()}
+
+          {view === 'map' && <SuburbMapPage />}
         </main>
       </div>
     </div>
