@@ -85,6 +85,13 @@ export function PropertyTable({
                       </a>
                       {' '}(weekly-updated, Sydney metro only).
                     </p>
+                    <div className="map-embed" onClick={(e) => e.stopPropagation()}>
+                      <iframe
+                        src="https://property.carto.au/sydney/house-prices/by-suburb/map"
+                        title="Sydney median house prices by suburb"
+                        loading="lazy"
+                      />
+                    </div>
                   </td>
                 </tr>
               )}
