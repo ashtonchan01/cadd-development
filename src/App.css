@@ -41,9 +41,8 @@ h1, h2 { font-family: var(--font-body); font-weight: 600; }
   flex-direction: column;
   gap: 20px;
 }
-.sidebar .brand { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
-.sidebar .brand-mark { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; color: var(--text); line-height: 1; }
-.sidebar .brand-sub { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.22em; color: var(--muted); }
+.sidebar .brand { padding: 0 8px; }
+.sidebar .brand-logo { width: 100%; height: auto; display: block; }
 .sidebar-section { display: flex; flex-direction: column; gap: 2px; }
 .sidebar-heading { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; margin-bottom: 6px; }
 .sidebar-link {

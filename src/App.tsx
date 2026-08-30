@@ -6,6 +6,7 @@ import { PropertyReport } from './components/PropertyReport';
 import { PropertyTable } from './components/PropertyTable';
 import { FeasibilityCalculator } from './components/FeasibilityCalculator';
 import type { AddressCandidate } from './services/addressSearch';
+import caddLogo from './assets/cadd-logo.svg';
 import './App.css';
 
 type View = 'search' | 'report' | 'saved' | 'feasibility';
@@ -46,8 +47,7 @@ function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">CADD</span>
-          <span className="brand-sub">DEVELOPMENTS</span>
+          <img src={caddLogo} alt="CADD Developments" className="brand-logo" />
         </div>
         <div className="sidebar-section">
           <div className="sidebar-heading">Workspace</div>
