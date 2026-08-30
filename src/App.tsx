@@ -45,7 +45,10 @@ function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">CADD</div>
+        <div className="brand">
+          <span className="brand-mark">CADD</span>
+          <span className="brand-sub">DEVELOPMENTS</span>
+        </div>
         <div className="sidebar-section">
           <div className="sidebar-heading">Workspace</div>
           <button type="button" className={view === 'search' || view === 'report' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => setView('search')}>
