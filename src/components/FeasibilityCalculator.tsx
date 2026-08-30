@@ -1,71 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Property } from '../types';
 import type { FeasibilityInputs, RevenueLine, SpreadLine } from '../types/feasibility';
-import { computeFeasibility } from '../engine/feasibility';
+import { computeFeasibility, lineMonthlyAmounts, monthCount, monthLabels, revenueLineMonthlyAmounts } from '../engine/feasibility';
 import { defaultFeasibility, loadFeasibility, saveFeasibility } from '../store/feasibilityStore';
 import { scoreProperty } from '../engine/scoring';
 
-function SpreadLineRows({
-  lines,
-  onChange,
-}: {
-  lines: SpreadLine[];
-  onChange: (lines: SpreadLine[]) => void;
-}) {
-  function update(i: number, patch: Partial<SpreadLine>) {
-    onChange(lines.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
-  }
-  function remove(i: number) {
-    onChange(lines.filter((_, idx) => idx !== i));
-  }
-  return (
-    <>
-      {lines.map((l, i) => (
-        <div className="fee-line" key={i}>
-          <input value={l.label} onChange={(e) => update(i, { label: e.target.value })} placeholder="Label" />
-          <input type="number" value={l.amount} onChange={(e) => update(i, { amount: Number(e.target.value) })} placeholder="Amount ($)" />
-          <input type="number" min={0} value={l.startMonth} onChange={(e) => update(i, { startMonth: Number(e.target.value) })} placeholder="Start" title="Start month" />
-          <input type="number" min={1} value={l.length} onChange={(e) => update(i, { length: Number(e.target.value) })} placeholder="Length" title="Length (months)" />
-          <button type="button" className="remove" onClick={() => remove(i)}>✕</button>
-        </div>
-      ))}
-      <button type="button" className="add-line" onClick={() => onChange([...lines, { label: '', amount: 0, startMonth: 0, length: 1 }])}>
-        + Add line
-      </button>
-    </>
-  );
-}
+type Section = 'sitePurchase' | 'build' | 'otherCosts';
 
-function RevenueLineRows({
-  lines,
-  onChange,
-}: {
-  lines: RevenueLine[];
-  onChange: (lines: RevenueLine[]) => void;
-}) {
-  function update(i: number, patch: Partial<RevenueLine>) {
-    onChange(lines.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
-  }
-  function remove(i: number) {
-    onChange(lines.filter((_, idx) => idx !== i));
-  }
-  return (
-    <>
-      {lines.map((l, i) => (
-        <div className="fee-line revenue-line" key={i}>
-          <input value={l.label} onChange={(e) => update(i, { label: e.target.value })} placeholder="Unit type" />
-          <input type="number" min={0} value={l.units} onChange={(e) => update(i, { units: Number(e.target.value) })} placeholder="Units" />
-          <input type="number" min={0} value={l.pricePerUnit} onChange={(e) => update(i, { pricePerUnit: Number(e.target.value) })} placeholder="Price/unit ($)" />
-          <input type="number" min={0} value={l.startMonth} onChange={(e) => update(i, { startMonth: Number(e.target.value) })} placeholder="Start" title="Start month" />
-          <input type="number" min={1} value={l.length} onChange={(e) => update(i, { length: Number(e.target.value) })} placeholder="Length" title="Length (months)" />
-          <button type="button" className="remove" onClick={() => remove(i)}>✕</button>
-        </div>
-      ))}
-      <button type="button" className="add-line" onClick={() => onChange([...lines, { label: '', units: 1, pricePerUnit: 0, startMonth: 0, length: 1 }])}>
-        + Add unit type
-      </button>
-    </>
-  );
+function money(n: number): string {
+  if (!n) return '—';
+  return n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
 }
 
 export function FeasibilityCalculator({ property, onBack }: { property: Property; onBack: () => void }) {
@@ -75,87 +19,145 @@ export function FeasibilityCalculator({ property, onBack }: { property: Property
     const estYield = Math.max(...scoreProperty(property).options.map((o) => o.estYield ?? 0), 1);
     return defaultFeasibility(estYield, property.price);
   });
-  const [savedFlag, setSavedFlag] = useState(false);
 
-  useEffect(() => { saveFeasibility(property.id, inputs); setSavedFlag(true); }, [inputs, property.id]);
+  useEffect(() => { saveFeasibility(property.id, inputs); }, [inputs, property.id]);
 
   const result = useMemo(() => computeFeasibility(inputs), [inputs]);
+  const months = monthCount(inputs);
+  const labels = useMemo(() => monthLabels(inputs.startMonth, months), [inputs.startMonth, months]);
 
   function set<K extends keyof FeasibilityInputs>(key: K, value: FeasibilityInputs[K]) {
     setInputs((d) => ({ ...d, [key]: value }));
   }
 
+  function updateSection(section: Section, i: number, patch: Partial<SpreadLine>) {
+    setInputs((d) => ({ ...d, [section]: d[section].map((l, idx) => (idx === i ? { ...l, ...patch } : l)) }));
+  }
+  function removeFromSection(section: Section, i: number) {
+    setInputs((d) => ({ ...d, [section]: d[section].filter((_, idx) => idx !== i) }));
+  }
+  function addToSection(section: Section) {
+    setInputs((d) => ({ ...d, [section]: [...d[section], { label: '', amount: 0, startMonth: 0, length: 1 }] }));
+  }
+
+  function updateRevenue(i: number, patch: Partial<RevenueLine>) {
+    setInputs((d) => ({ ...d, revenue: d.revenue.map((l, idx) => (idx === i ? { ...l, ...patch } : l)) }));
+  }
+  function removeRevenue(i: number) {
+    setInputs((d) => ({ ...d, revenue: d.revenue.filter((_, idx) => idx !== i) }));
+  }
+  function addRevenue() {
+    setInputs((d) => ({ ...d, revenue: [...d.revenue, { label: '', units: 1, pricePerUnit: 0, startMonth: 0, length: 1 }] }));
+  }
+
+  const sectionTotal = (section: Section) => inputs[section].reduce((s, l) => s + l.amount, 0);
+  const revenueTotal = inputs.revenue.reduce((s, l) => s + l.units * l.pricePerUnit, 0);
+
   return (
     <div className="feasibility">
       <button type="button" className="back-link" onClick={onBack}>← Back to saved properties</button>
 
-      <div className="card">
-        <h2>{property.address}</h2>
-        <p className="hint">
-          Development feasibility — simplified model (straight-line cost/revenue spread, simple loan
-          interest). Not a bank-ready appraisal; verify before relying on it.
-          {savedFlag && <span className="hint-ok"> Autosaved.</span>}
-        </p>
-      </div>
-
-      <div className="card summary-grid">
-        <SummaryStat label="Total costs" value={money(result.totalCosts)} />
-        <SummaryStat label="Total revenue" value={money(result.totalRevenue)} />
-        <SummaryStat label="Profit" value={money(result.profit)} tone={result.profit >= 0 ? 'positive' : 'danger'} />
-        <SummaryStat label="Development margin" value={`${result.marginPct.toFixed(1)}%`} tone={result.marginPct >= 0 ? 'positive' : 'danger'} />
-        <SummaryStat label="Project IRR" value={result.projectIrrAnnual !== null ? `${result.projectIrrAnnual.toFixed(1)}%` : '—'} />
-        <SummaryStat label="Equity IRR" value={result.equityIrrAnnual !== null ? `${result.equityIrrAnnual.toFixed(1)}%` : '—'} />
-        <SummaryStat label="Equity required" value={money(result.equityRequired)} />
-        <SummaryStat label="Loan interest cost" value={money(result.interestCost)} />
-      </div>
-
-      <div className="card">
-        <h2>Site purchase</h2>
-        <div className="fee-line fee-header"><span>Label</span><span>Amount</span><span>Start</span><span>Length</span><span></span></div>
-        <SpreadLineRows lines={inputs.sitePurchase} onChange={(v) => set('sitePurchase', v)} />
-      </div>
-
-      <div className="card">
-        <h2>Build</h2>
-        <div className="fee-line fee-header"><span>Label</span><span>Amount</span><span>Start</span><span>Length</span><span></span></div>
-        <SpreadLineRows lines={inputs.build} onChange={(v) => set('build', v)} />
-      </div>
-
-      <div className="card">
-        <h2>Other costs</h2>
-        <div className="fee-line fee-header"><span>Label</span><span>Amount</span><span>Start</span><span>Length</span><span></span></div>
-        <SpreadLineRows lines={inputs.otherCosts} onChange={(v) => set('otherCosts', v)} />
-      </div>
-
-      <div className="card">
-        <h2>Revenue</h2>
-        <div className="fee-line revenue-line fee-header"><span>Unit type</span><span>Units</span><span>Price/unit</span><span>Start</span><span>Length</span><span></span></div>
-        <RevenueLineRows lines={inputs.revenue} onChange={(v) => set('revenue', v)} />
-      </div>
-
-      <div className="card">
-        <h2>Finance</h2>
-        <div className="grid">
-          <label>Loan amount ($)<input type="number" min={0} value={inputs.loanAmount} onChange={(e) => set('loanAmount', Number(e.target.value))} /></label>
-          <label>Interest rate (% p.a.)<input type="number" min={0} step={0.1} value={inputs.interestRatePct} onChange={(e) => set('interestRatePct', Number(e.target.value))} /></label>
+      <div className="card feas-toolbar">
+        <div>
+          <h2>{property.address}</h2>
+          <p className="hint">Simplified feasibility model — not a bank-ready appraisal. Autosaves per property.</p>
+        </div>
+        <div className="feas-irr">
+          <div><span className="hint">Project IRR</span><strong className={result.projectIrrAnnual !== null && result.projectIrrAnnual < 0 ? 'neg' : ''}>{result.projectIrrAnnual !== null ? `${result.projectIrrAnnual.toFixed(1)}%` : '—'}</strong></div>
+          <div><span className="hint">Equity IRR</span><strong className={result.equityIrrAnnual !== null && result.equityIrrAnnual < 0 ? 'neg' : ''}>{result.equityIrrAnnual !== null ? `${result.equityIrrAnnual.toFixed(1)}%` : '—'}</strong></div>
+          <div><span className="hint">Margin</span><strong className={result.marginPct < 0 ? 'neg' : ''}>{result.marginPct.toFixed(1)}%</strong></div>
+          <div><span className="hint">Profit</span><strong className={result.profit < 0 ? 'neg' : ''}>{money(result.profit)}</strong></div>
         </div>
       </div>
 
-      <div className="card cashflow-card">
-        <h2>Monthly cashflow</h2>
-        <div className="cashflow-scroll">
-          <table className="cashflow-table">
+      <div className="card feas-sheet-card">
+        <div className="feas-sheet-scroll">
+          <table className="feas-sheet">
             <thead>
               <tr>
-                <th>Month</th>
-                {result.months.map((m) => <th key={m.monthIndex}>{m.label}</th>)}
+                <th className="col-label">
+                  Start month
+                  <input className="start-month-input" value={inputs.startMonth} onChange={(e) => set('startMonth', e.target.value)} placeholder="YYYY-MM" />
+                </th>
+                <th className="col-total">total</th>
+                <th className="col-start">start</th>
+                <th className="col-length">length</th>
+                {labels.map((l, i) => <th key={i} className="col-month">{l}</th>)}
+                <th className="col-del"></th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Costs</td>{result.months.map((m) => <td key={m.monthIndex}>{m.costs ? money(-m.costs) : '—'}</td>)}</tr>
-              <tr><td>Revenue</td>{result.months.map((m) => <td key={m.monthIndex}>{m.revenue ? money(m.revenue) : '—'}</td>)}</tr>
-              <tr className="net-row"><td>Net</td>{result.months.map((m) => <td key={m.monthIndex}>{money(m.net)}</td>)}</tr>
-              <tr className="cumulative-row"><td>Cumulative</td>{result.months.map((m) => <td key={m.monthIndex}>{money(m.cumulative)}</td>)}</tr>
+              <SectionHeader label="Revenue" total={revenueTotal} months={months} />
+              {inputs.revenue.map((line, i) => {
+                const amounts = revenueLineMonthlyAmounts(line, months);
+                return (
+                  <tr key={i}>
+                    <td className="col-label"><input value={line.label} onChange={(e) => updateRevenue(i, { label: e.target.value })} placeholder="Unit type" /></td>
+                    <td className="col-total">{money(line.units * line.pricePerUnit)}</td>
+                    <td className="col-start"><input type="number" min={0} value={line.startMonth} onChange={(e) => updateRevenue(i, { startMonth: Number(e.target.value) })} /></td>
+                    <td className="col-length"><input type="number" min={1} value={line.length} onChange={(e) => updateRevenue(i, { length: Number(e.target.value) })} /></td>
+                    {amounts.map((a, m) => <td key={m} className="col-month num">{a ? money(a) : ''}</td>)}
+                    <td className="col-del"><button type="button" className="remove" onClick={() => removeRevenue(i)}>✕</button></td>
+                  </tr>
+                );
+              })}
+              <tr className="add-row">
+                <td colSpan={4}>
+                  <div className="row-inline-inputs">
+                    <button type="button" className="add-line" onClick={addRevenue}>+ Add unit type</button>
+                    <label className="units-hint">units × price/unit editable inline once added</label>
+                  </div>
+                </td>
+                <td colSpan={months + 1}></td>
+              </tr>
+
+              <SectionRows
+                title="Site Purchase" section="sitePurchase" lines={inputs.sitePurchase} months={months}
+                total={sectionTotal('sitePurchase')}
+                onUpdate={(i, patch) => updateSection('sitePurchase', i, patch)}
+                onRemove={(i) => removeFromSection('sitePurchase', i)}
+                onAdd={() => addToSection('sitePurchase')}
+              />
+              <SectionRows
+                title="Build" section="build" lines={inputs.build} months={months}
+                total={sectionTotal('build')}
+                onUpdate={(i, patch) => updateSection('build', i, patch)}
+                onRemove={(i) => removeFromSection('build', i)}
+                onAdd={() => addToSection('build')}
+              />
+              <SectionRows
+                title="Other Costs" section="otherCosts" lines={inputs.otherCosts} months={months}
+                total={sectionTotal('otherCosts')}
+                onUpdate={(i, patch) => updateSection('otherCosts', i, patch)}
+                onRemove={(i) => removeFromSection('otherCosts', i)}
+                onAdd={() => addToSection('otherCosts')}
+              />
+
+              <tr className="section-header">
+                <td className="col-label">Finance</td>
+                <td className="col-total"></td>
+                <td colSpan={2 + months + 1}></td>
+              </tr>
+              <tr>
+                <td className="col-label">Loan amount</td>
+                <td className="col-total"><input type="number" min={0} value={inputs.loanAmount} onChange={(e) => set('loanAmount', Number(e.target.value))} /></td>
+                <td className="col-label" colSpan={2}>Interest rate (% p.a.)</td>
+                <td className="col-num"><input type="number" min={0} step={0.1} value={inputs.interestRatePct} onChange={(e) => set('interestRatePct', Number(e.target.value))} /></td>
+                <td colSpan={months - 1 + 1}></td>
+              </tr>
+
+              <tr className="net-row">
+                <td className="col-label">Net cashflow</td>
+                <td colSpan={3}></td>
+                {result.months.map((m) => <td key={m.monthIndex} className="col-month num">{money(m.net)}</td>)}
+                <td></td>
+              </tr>
+              <tr className="cumulative-row">
+                <td className="col-label">Cumulative</td>
+                <td colSpan={3}></td>
+                {result.months.map((m) => <td key={m.monthIndex} className="col-month num">{money(m.cumulative)}</td>)}
+                <td></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -164,15 +166,48 @@ export function FeasibilityCalculator({ property, onBack }: { property: Property
   );
 }
 
-function SummaryStat({ label, value, tone }: { label: string; value: string; tone?: 'positive' | 'danger' }) {
+function SectionHeader({ label, total, months }: { label: string; total: number; months: number }) {
   return (
-    <div className={`stat ${tone ? `stat-${tone}` : ''}`}>
-      <div className="stat-label">{label}</div>
-      <div className="stat-value">{value}</div>
-    </div>
+    <tr className="section-header">
+      <td className="col-label">{label}</td>
+      <td className="col-total">{money(total)}</td>
+      <td colSpan={2 + months + 1}></td>
+    </tr>
   );
 }
 
-function money(n: number): string {
-  return n.toLocaleString('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 });
+function SectionRows({
+  title, lines, months, total, onUpdate, onRemove, onAdd,
+}: {
+  title: string;
+  section: Section;
+  lines: SpreadLine[];
+  months: number;
+  total: number;
+  onUpdate: (i: number, patch: Partial<SpreadLine>) => void;
+  onRemove: (i: number) => void;
+  onAdd: () => void;
+}) {
+  return (
+    <>
+      <SectionHeader label={title} total={total} months={months} />
+      {lines.map((line, i) => {
+        const amounts = lineMonthlyAmounts(line, months);
+        return (
+          <tr key={i}>
+            <td className="col-label"><input value={line.label} onChange={(e) => onUpdate(i, { label: e.target.value })} placeholder="Label" /></td>
+            <td className="col-total"><input type="number" value={line.amount} onChange={(e) => onUpdate(i, { amount: Number(e.target.value) })} /></td>
+            <td className="col-start"><input type="number" min={0} value={line.startMonth} onChange={(e) => onUpdate(i, { startMonth: Number(e.target.value) })} /></td>
+            <td className="col-length"><input type="number" min={1} value={line.length} onChange={(e) => onUpdate(i, { length: Number(e.target.value) })} /></td>
+            {amounts.map((a, m) => <td key={m} className="col-month num">{a ? money(a) : ''}</td>)}
+            <td className="col-del"><button type="button" className="remove" onClick={() => onRemove(i)}>✕</button></td>
+          </tr>
+        );
+      })}
+      <tr className="add-row">
+        <td colSpan={4}><button type="button" className="add-line" onClick={onAdd}>+ Add line</button></td>
+        <td colSpan={months + 1}></td>
+      </tr>
+    </>
+  );
 }

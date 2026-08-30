@@ -15,7 +15,7 @@ import type { FeasibilityInputs, FeasibilityResult, MonthRow, RevenueLine, Sprea
  * Treat the outputs as a working estimate, not a bank-ready feasibility study.
  */
 
-function monthCount(inputs: FeasibilityInputs): number {
+export function monthCount(inputs: FeasibilityInputs): number {
   const ends = [
     ...inputs.sitePurchase.map((l) => l.startMonth + l.length),
     ...inputs.build.map((l) => l.startMonth + l.length),
@@ -37,6 +37,27 @@ function spreadInto(target: number[], line: SpreadLine): void {
 function spreadRevenueInto(target: number[], line: RevenueLine): void {
   const total = line.units * line.pricePerUnit;
   spreadInto(target, { label: line.label, amount: total, startMonth: line.startMonth, length: line.length });
+}
+
+/** Per-month amounts for a single line, for rendering it as a spreadsheet row. */
+export function lineMonthlyAmounts(line: SpreadLine, monthsTotal: number): number[] {
+  const arr = new Array(monthsTotal).fill(0);
+  spreadInto(arr, line);
+  return arr;
+}
+
+export function revenueLineMonthlyAmounts(line: RevenueLine, monthsTotal: number): number[] {
+  const arr = new Array(monthsTotal).fill(0);
+  spreadRevenueInto(arr, line);
+  return arr;
+}
+
+export function monthLabels(startMonth: string, count: number): string[] {
+  const [yearStr, monthStr] = startMonth.split('-');
+  const year = Number(yearStr) || new Date().getFullYear();
+  const month = (Number(monthStr) || 1) - 1;
+  const formatter = new Intl.DateTimeFormat('en-AU', { month: 'short', year: '2-digit' });
+  return Array.from({ length: count }, (_, i) => formatter.format(new Date(year, month + i, 1)));
 }
 
 // Bisection for the monthly rate r solving sum(cashflow[t] / (1+r)^t) = 0.

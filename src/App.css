@@ -216,49 +216,68 @@ footer a { color: var(--accent); }
 }
 .feasibility-btn:hover { background: #e6edf1; }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px;
-}
-.stat-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 4px; }
-.stat-value { font-size: 1.15rem; font-weight: 600; }
-.stat-positive .stat-value { color: var(--positive); }
-.stat-danger .stat-value { color: var(--danger); }
-
-.fee-line {
-  display: grid;
-  grid-template-columns: 2fr 1fr 0.6fr 0.6fr 28px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.fee-line.revenue-line { grid-template-columns: 1.6fr 0.7fr 1fr 0.6fr 0.6fr 28px; }
-.fee-header { color: var(--muted); font-size: 0.75rem; margin-bottom: 4px; }
 .add-line {
   background: transparent;
   border: 1px dashed var(--border);
   color: var(--accent);
-  padding: 7px 12px;
-  font-size: 0.82rem;
-  margin-top: 4px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
 }
 
-.cashflow-card { overflow: hidden; }
-.cashflow-scroll { overflow-x: auto; }
-.cashflow-table { border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; }
-.cashflow-table th, .cashflow-table td {
-  padding: 6px 10px;
+.feas-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.feas-irr { display: flex; gap: 24px; flex-wrap: wrap; }
+.feas-irr > div { display: flex; flex-direction: column; gap: 2px; min-width: 90px; }
+.feas-irr strong { font-size: 1.05rem; }
+.feas-irr strong.neg { color: var(--danger); }
+
+.feas-sheet-card { padding: 0; overflow: hidden; }
+.feas-sheet-scroll { overflow-x: auto; }
+.feas-sheet { border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; width: max-content; }
+.feas-sheet th, .feas-sheet td {
+  padding: 6px 8px;
   border-bottom: 1px solid var(--border);
-  text-align: right;
 }
-.cashflow-table th:first-child, .cashflow-table td:first-child {
-  text-align: left;
+.feas-sheet th { color: var(--muted); font-weight: 500; font-size: 0.72rem; text-align: right; }
+.feas-sheet td.num, .feas-sheet th.col-month { text-align: right; }
+
+.feas-sheet .col-label { width: 170px; min-width: 170px; text-align: left; }
+.feas-sheet .col-total { width: 110px; min-width: 110px; }
+.feas-sheet .col-num, .feas-sheet .col-start, .feas-sheet .col-length { width: 56px; min-width: 56px; }
+.feas-sheet .col-month { width: 84px; min-width: 84px; }
+.feas-sheet .col-del { width: 28px; min-width: 28px; }
+
+.feas-sheet .col-label, .feas-sheet .col-total, .feas-sheet .col-start, .feas-sheet .col-length {
   position: sticky;
-  left: 0;
   background: var(--surface);
-  font-weight: 500;
-  color: var(--muted);
+  z-index: 1;
 }
-.cashflow-table .net-row td { font-weight: 600; }
-.cashflow-table .cumulative-row td { color: var(--muted); }
+.feas-sheet .col-label { left: 0; }
+.feas-sheet .col-total { left: 170px; }
+.feas-sheet .col-start { left: 280px; }
+.feas-sheet .col-length { left: 336px; box-shadow: 2px 0 4px rgba(16,24,40,0.06); }
+.feas-sheet thead th { position: sticky; top: 0; background: var(--surface); z-index: 2; }
+.feas-sheet thead th.col-label, .feas-sheet thead th.col-total, .feas-sheet thead th.col-start, .feas-sheet thead th.col-length { z-index: 3; }
+
+.feas-sheet input {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
+  background: transparent;
+}
+.feas-sheet input:hover, .feas-sheet input:focus { border-color: var(--border); background: #fbfbfc; }
+.feas-sheet .start-month-input { width: 90px; margin-left: 8px; display: inline-block; }
+
+.feas-sheet .section-header td { background: #f6f4ee; font-weight: 600; color: var(--text); }
+.feas-sheet .section-header .col-total, .feas-sheet .section-header .col-start, .feas-sheet .section-header .col-length { background: #f6f4ee; }
+.feas-sheet .add-row td { padding: 6px 8px; }
+.feas-sheet .net-row td { font-weight: 600; background: #fbfbfc; }
+.feas-sheet .cumulative-row td { color: var(--muted); }
+.row-inline-inputs { display: flex; align-items: center; gap: 10px; }
+.units-hint { color: var(--muted); font-size: 0.72rem; }
