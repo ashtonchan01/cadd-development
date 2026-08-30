@@ -27,32 +27,42 @@ body {
 
 h1, h2 { font-family: var(--font-head); font-weight: 500; }
 
-.app {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
+.app-shell {
+  display: flex;
+  min-height: 100vh;
 }
 
-.top-nav {
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 20px;
 }
-.top-nav .brand { font-weight: 700; letter-spacing: 0.04em; margin-right: 14px; color: var(--accent); }
-.top-nav .nav-link, .top-nav .nav-active {
+.sidebar .brand { font-family: var(--font-head); font-size: 1.3rem; font-weight: 600; color: var(--accent); padding: 0 8px; }
+.sidebar-section { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-heading { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 8px; margin-bottom: 6px; }
+.sidebar-link {
   background: transparent;
   color: var(--muted);
   border: none;
   border-radius: 6px;
-  padding: 7px 12px;
+  padding: 9px 8px;
   font-size: 0.88rem;
   font-weight: 500;
+  text-align: left;
 }
-.top-nav .nav-link:hover { background: #f1efe9; color: var(--text); }
-.top-nav .nav-active { background: #e6edf1; color: var(--accent); }
+.sidebar-link:hover { background: #f1efe9; color: var(--text); }
+.sidebar-link.active { background: #e6edf1; color: var(--accent); }
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px 32px 60px;
+}
 
 .search-home { text-align: center; padding: 60px 0 30px; }
 .search-home h1 { font-size: 2rem; margin-bottom: 10px; }
@@ -281,3 +291,12 @@ footer a { color: var(--accent); }
 .feas-sheet .cumulative-row td { color: var(--muted); }
 .row-inline-inputs { display: flex; align-items: center; gap: 10px; }
 .units-hint { color: var(--muted); font-size: 0.72rem; }
+
+.map-embed {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 480px;
+}
+.map-embed iframe { width: 100%; height: 100%; border: none; }

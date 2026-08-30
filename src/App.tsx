@@ -43,48 +43,55 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <nav className="top-nav">
-        <span className="brand">CADD</span>
-        <button type="button" className={view === 'search' || view === 'report' ? 'nav-active' : 'nav-link'} onClick={() => setView('search')}>Search</button>
-        <button type="button" className={view === 'saved' ? 'nav-active' : 'nav-link'} onClick={() => setView('saved')}>
-          Saved properties{properties.length > 0 ? ` (${properties.length})` : ''}
-        </button>
-      </nav>
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="brand">CADD</div>
+        <div className="sidebar-section">
+          <div className="sidebar-heading">Workspace</div>
+          <button type="button" className={view === 'search' || view === 'report' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => setView('search')}>
+            Search
+          </button>
+          <button type="button" className={view === 'saved' || view === 'feasibility' ? 'sidebar-link active' : 'sidebar-link'} onClick={() => setView('saved')}>
+            Saved properties{properties.length > 0 ? ` (${properties.length})` : ''}
+          </button>
+        </div>
+      </aside>
 
-      <main>
-        {view === 'search' && <SearchHome onFound={handleFound} />}
+      <div className="app-main">
+        <main>
+          {view === 'search' && <SearchHome onFound={handleFound} />}
 
-        {view === 'report' && candidate && (
-          <PropertyReport candidate={candidate} onSave={handleSave} onBack={() => setView('search')} />
-        )}
+          {view === 'report' && candidate && (
+            <PropertyReport candidate={candidate} onSave={handleSave} onBack={() => setView('search')} />
+          )}
 
-        {view === 'saved' && (
-          <>
-            <PropertyTable properties={properties} onRemove={handleRemove} onFeasibility={handleFeasibility} />
-            {properties.length > 0 && (
-              <button type="button" className="clear-all" onClick={clearAll}>Clear all properties</button>
-            )}
-          </>
-        )}
+          {view === 'saved' && (
+            <>
+              <PropertyTable properties={properties} onRemove={handleRemove} onFeasibility={handleFeasibility} />
+              {properties.length > 0 && (
+                <button type="button" className="clear-all" onClick={clearAll}>Clear all properties</button>
+              )}
+            </>
+          )}
 
-        {view === 'feasibility' && feasibilityPropertyId && (() => {
-          const property = properties.find((p) => p.id === feasibilityPropertyId);
-          return property
-            ? <FeasibilityCalculator property={property} onBack={() => setView('saved')} />
-            : <p className="hint">Property not found.</p>;
-        })()}
-      </main>
+          {view === 'feasibility' && feasibilityPropertyId && (() => {
+            const property = properties.find((p) => p.id === feasibilityPropertyId);
+            return property
+              ? <FeasibilityCalculator property={property} onBack={() => setView('saved')} />
+              : <p className="hint">Property not found.</p>;
+          })()}
+        </main>
 
-      <footer>
-        <p>
-          Scores are a planning-rules heuristic based on statewide LEP zone defaults and the Low and
-          Mid-Rise Housing SEPP — they are <strong>not</strong> a substitute for a council planning
-          certificate (s10.7), pre-DA advice, or checking the exact LEP minimum lot size map for the
-          parcel. Always verify on the{' '}
-          <a href="https://www.planningportal.nsw.gov.au/" target="_blank" rel="noreferrer">NSW Planning Portal</a>.
-        </p>
-      </footer>
+        <footer>
+          <p>
+            Scores are a planning-rules heuristic based on statewide LEP zone defaults and the Low and
+            Mid-Rise Housing SEPP — they are <strong>not</strong> a substitute for a council planning
+            certificate (s10.7), pre-DA advice, or checking the exact LEP minimum lot size map for the
+            parcel. Always verify on the{' '}
+            <a href="https://www.planningportal.nsw.gov.au/" target="_blank" rel="noreferrer">NSW Planning Portal</a>.
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }

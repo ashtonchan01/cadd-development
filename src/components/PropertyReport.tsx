@@ -149,15 +149,19 @@ export function PropertyReport({
       <div className="card">
         <h2>Suburb price trends</h2>
         <p className="hint">
+          Live map from property.carto.au — weekly-updated median sale prices, Sydney metro only.
+          If the embed below shows blank, that site is blocking iframe embedding; use the link instead.{' '}
           <a href="https://property.carto.au/sydney/house-prices/by-suburb/map" target="_blank" rel="noreferrer">
-            Sydney median house prices by suburb — interactive map
-          </a>{' '}
-          and{' '}
-          <a href="https://property.carto.au/sydney/unit-prices/by-suburb/map" target="_blank" rel="noreferrer">
-            unit prices by suburb
+            Open full map ↗
           </a>
-          {' '}(weekly-updated median sale prices; Sydney metro only, not all of NSW).
         </p>
+        <div className="map-embed">
+          <iframe
+            src="https://property.carto.au/sydney/house-prices/by-suburb/map"
+            title="Sydney median house prices by suburb"
+            loading="lazy"
+          />
+        </div>
       </div>
     </div>
   );
