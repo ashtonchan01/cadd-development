@@ -4,15 +4,17 @@ import { addProperty, loadProperties, removeProperty, saveProperties } from './s
 import { SearchHome } from './components/SearchHome';
 import { PropertyReport } from './components/PropertyReport';
 import { PropertyTable } from './components/PropertyTable';
+import { FeasibilityCalculator } from './components/FeasibilityCalculator';
 import type { AddressCandidate } from './services/addressSearch';
 import './App.css';
 
-type View = 'search' | 'report' | 'saved';
+type View = 'search' | 'report' | 'saved' | 'feasibility';
 
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [view, setView] = useState<View>('search');
   const [candidate, setCandidate] = useState<AddressCandidate | null>(null);
+  const [feasibilityPropertyId, setFeasibilityPropertyId] = useState<string | null>(null);
 
   useEffect(() => { setProperties(loadProperties()); }, []);
 
@@ -27,6 +29,11 @@ function App() {
 
   function handleRemove(id: string) {
     setProperties((cur) => removeProperty(cur, id));
+  }
+
+  function handleFeasibility(id: string) {
+    setFeasibilityPropertyId(id);
+    setView('feasibility');
   }
 
   function clearAll() {
@@ -54,12 +61,19 @@ function App() {
 
         {view === 'saved' && (
           <>
-            <PropertyTable properties={properties} onRemove={handleRemove} />
+            <PropertyTable properties={properties} onRemove={handleRemove} onFeasibility={handleFeasibility} />
             {properties.length > 0 && (
               <button type="button" className="clear-all" onClick={clearAll}>Clear all properties</button>
             )}
           </>
         )}
+
+        {view === 'feasibility' && feasibilityPropertyId && (() => {
+          const property = properties.find((p) => p.id === feasibilityPropertyId);
+          return property
+            ? <FeasibilityCalculator property={property} onBack={() => setView('saved')} />
+            : <p className="hint">Property not found.</p>;
+        })()}
       </main>
 
       <footer>

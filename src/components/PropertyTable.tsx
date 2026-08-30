@@ -2,7 +2,15 @@ import { Fragment, useMemo, useState } from 'react';
 import type { Property } from '../types';
 import { scoreProperty } from '../engine/scoring';
 
-export function PropertyTable({ properties, onRemove }: { properties: Property[]; onRemove: (id: string) => void }) {
+export function PropertyTable({
+  properties,
+  onRemove,
+  onFeasibility,
+}: {
+  properties: Property[];
+  onRemove: (id: string) => void;
+  onFeasibility: (id: string) => void;
+}) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const scored = useMemo(
@@ -35,7 +43,10 @@ export function PropertyTable({ properties, onRemove }: { properties: Property[]
                 <td>{p.zone}</td>
                 <td>{p.lotSizeSqm}</td>
                 <td className="summary-cell">{result.summary}</td>
-                <td><button type="button" className="remove" onClick={(e) => { e.stopPropagation(); onRemove(p.id); }}>✕</button></td>
+                <td className="row-actions">
+                  <button type="button" className="feasibility-btn" onClick={(e) => { e.stopPropagation(); onFeasibility(p.id); }}>Feasibility</button>
+                  <button type="button" className="remove" onClick={(e) => { e.stopPropagation(); onRemove(p.id); }}>✕</button>
+                </td>
               </tr>
               {expanded === p.id && (
                 <tr className="detail-row">

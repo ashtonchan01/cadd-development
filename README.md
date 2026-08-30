@@ -31,6 +31,14 @@ entirely on free public data instead:
   each property's detail row links out to the NSW Government's sale price search
   instead of pulling data in automatically.
 
+Each saved property also has a **feasibility calculator** (`src/engine/feasibility.ts`,
+`src/components/FeasibilityCalculator.tsx`) — site purchase, build and other costs,
+revenue by unit type, loan/interest, a monthly cashflow schedule and IRR — the
+same development-appraisal functionality as Aprao's cashflow tool, built as our
+own implementation rather than a copy of it. It's a simplified model (straight-line
+cost/revenue spreading, simple loan interest, not a drawdown schedule) — treat it
+as a working estimate, not a bank-ready appraisal.
+
 Everything is scored client-side and persisted to `localStorage` — no backend.
 
 ## Run locally

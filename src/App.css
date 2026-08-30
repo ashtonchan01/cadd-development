@@ -204,3 +204,61 @@ tr.row:hover { background: #f7f9fc; }
 
 footer { margin-top: 24px; color: var(--muted); font-size: 0.8rem; }
 footer a { color: var(--accent); }
+
+.row-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.feasibility-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  border-radius: 6px;
+}
+.feasibility-btn:hover { background: #e6edf1; }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+.stat-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 4px; }
+.stat-value { font-size: 1.15rem; font-weight: 600; }
+.stat-positive .stat-value { color: var(--positive); }
+.stat-danger .stat-value { color: var(--danger); }
+
+.fee-line {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.6fr 0.6fr 28px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.fee-line.revenue-line { grid-template-columns: 1.6fr 0.7fr 1fr 0.6fr 0.6fr 28px; }
+.fee-header { color: var(--muted); font-size: 0.75rem; margin-bottom: 4px; }
+.add-line {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--accent);
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  margin-top: 4px;
+}
+
+.cashflow-card { overflow: hidden; }
+.cashflow-scroll { overflow-x: auto; }
+.cashflow-table { border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; }
+.cashflow-table th, .cashflow-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+.cashflow-table th:first-child, .cashflow-table td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  font-weight: 500;
+  color: var(--muted);
+}
+.cashflow-table .net-row td { font-weight: 600; }
+.cashflow-table .cumulative-row td { color: var(--muted); }
