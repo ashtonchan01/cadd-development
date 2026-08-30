@@ -81,16 +81,6 @@ function App() {
               : <p className="hint">Property not found.</p>;
           })()}
         </main>
-
-        <footer>
-          <p>
-            Scores are a planning-rules heuristic based on statewide LEP zone defaults and the Low and
-            Mid-Rise Housing SEPP — they are <strong>not</strong> a substitute for a council planning
-            certificate (s10.7), pre-DA advice, or checking the exact LEP minimum lot size map for the
-            parcel. Always verify on the{' '}
-            <a href="https://www.planningportal.nsw.gov.au/" target="_blank" rel="noreferrer">NSW Planning Portal</a>.
-          </p>
-        </footer>
       </div>
     </div>
   );

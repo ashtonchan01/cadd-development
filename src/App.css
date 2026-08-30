@@ -212,9 +212,6 @@ tr.row:hover { background: #f7f9fc; }
 
 .errors { color: var(--warn); font-size: 0.82rem; }
 
-footer { margin-top: 24px; color: var(--muted); font-size: 0.8rem; }
-footer a { color: var(--accent); }
-
 .row-actions { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
 .feasibility-btn {
   background: transparent;
